@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anonymous Suggestion Box — Your Voice, Your Campus</title>
+
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================================
+   DESIGN TOKENS
+   ========================================================================== */
+:root{
+  --primary:#F59E0B;
+  --primary-dark:#D97706;
+  --primary-light:#FCD34D;
+  --radius:20px;
+  --radius-sm:12px;
+  --font-display:'Poppins', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --transition:.35s cubic-bezier(.22,1,.36,1);
+
+  /* Red & Gold Toggle Theme Accent Colors */
+  --rg-red-dark: #8B0000;
+  --rg-red: #DC2626;
+  --rg-gold-light: #FCD34D;
+  --rg-gold: #F59E0B;
+}
+:root[data-theme="dark"]{
+  --bg:#0F172A;
+  --bg-alt:#0B1220;
+  --surface:#111C34;
+  --text:#F1F5F9;
+  --text-muted:#94A3B8;
+  --glass-bg:rgba(255,255,255,0.055);
+  --glass-bg-strong:rgba(255,255,255,0.09);
+  --glass-border:rgba(255,255,255,0.12);
+  --shadow:0 25px 60px -15px rgba(0,0,0,0.45);
+  --shadow-sm:0 10px 24px -10px rgba(0,0,0,0.35);
+  --divider:rgba(255,255,255,0.08);
+}
+:root[data-theme="light"]{
+  --bg:#F5F7FB;
+  --bg-alt:#EEF1F8;
+  --surface:#FFFFFF;
+  --text:#0F172A;
+  --text-muted:#5B6478;
+  --glass-bg:rgba(255,255,255,0.65);
+  --glass-bg-strong:rgba(255,255,255,0.85);
+  --glass-border:rgba(15,23,42,0.08);
+  --shadow:0 25px 60px -18px rgba(15,23,42,0.18);
+  --shadow-sm:0 10px 24px -12px rgba(15,23,42,0.12);
+  --divider:rgba(15,23,42,0.08);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+padding-top:80px;
+
+  padding-top:90px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  transition:background var(--transition), color var(--transition);
+  overflow-x:hidden;
+}
+h1,h2,h3,h4,.font-display{ font-family:var(--font-display); letter-spacing:-0.01em; }
+::selection{ background:var(--primary); color:#0F172A; }
+.text-muted-custom{ color:var(--text-muted) !important; }
+
+/* Ambient background gradient blobs */
+.bg-orbs{ position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+.orb{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.35; }
+.orb-1{ width:480px; height:480px; background:var(--primary); top:-160px; left:-120px; animation:float1 16s ease-in-out infinite; }
+.orb-2{ width:380px; height:380px; background:#6366F1; bottom:-140px; right:-100px; animation:float2 18s ease-in-out infinite; }
+[data-theme="light"] .orb{ opacity:.18; }
+@keyframes float1{ 0%,100%{transform:translate(0,0);} 50%{transform:translate(40px,50px);} }
+@keyframes float2{ 0%,100%{transform:translate(0,0);} 50%{transform:translate(-50px,-30px);} }
+
+/* ==========================================================================
+   GLASSMORPHISM PRIMITIVES
+   ========================================================================== */
+.glass{
+  background:var(--glass-bg);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+  transition:background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+.glass-strong{ background:var(--glass-bg-strong); }
+
+/* ==========================================================================
+   NAVBAR & RED-GOLD TOGGLE BAR
+   ========================================================================== */
+.navbar-glass{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+z-index:1000;
+background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#334155 100%);
+color:#fff;
+border-bottom:1px solid rgba(255,255,255,.08);
+box-shadow:0 10px 30px rgba(15,23,42,.25);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+transition:transform .35s ease,background .35s ease;
+}
+.navbar-glass .navbar-brand{color:#fff!important;font-weight:700;letter-spacing:.5px;}
+.navbar-glass .nav-link{color:rgba(255,255,255,.88)!important;font-weight:500;transition:all .25s ease;}
+.navbar-glass .nav-link:hover{color:#60a5fa!important;}
+.navbar-glass .btn{border-radius:10px;}
+
+
+.brand-mark{
+  width:40px; height:40px; border-radius:12px;
+  background:linear-gradient(135deg, var(--rg-red), var(--rg-gold));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 20px -6px rgba(220,38,38,0.55);
+  flex-shrink:0;
+}
+.brand-name{ font-family:var(--font-display); font-weight:700; font-size:1.15rem; color:var(--text); }
+.brand-name span{ color:var(--rg-gold); }
+
+/* RED AND GOLD SEGMENTED TOGGLE BAR */
+.seg-toggle{
+  display:inline-flex; 
+  background:var(--glass-bg); 
+  border:1.5px solid rgba(220, 38, 38, 0.4);
+  border-radius:999px; 
+  padding:4px; 
+  position:relative;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.2);
+}
+.seg-toggle button{
+  border:none; background:transparent; position:relative; z-index:1;
+  padding:.45rem 1.2rem; border-radius:999px; font-weight:700; font-size:.85rem;
+  color:var(--text-muted); transition:color .25s;
+}
+.seg-toggle button.active{ 
+  color:#FFFFFF; 
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.seg-highlight{
+  position:absolute; top:4px; bottom:4px; left:4px; width:calc(50% - 4px);
+  background:linear-gradient(135deg, var(--rg-red) 0%, var(--rg-gold) 100%);
+  border-radius:999px; 
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.seg-toggle[data-mode="staff"] .seg-highlight{ transform:translateX(100%); }
+
+.icon-btn{
+  width:42px; height:42px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center;
+  background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text);
+  transition:transform .2s, background .2s;
+}
+.icon-btn:hover{ transform:translateY(-2px); background:var(--glass-bg-strong); color:var(--primary); }
+.icon-btn:active{ transform:scale(.93); }
+
+.lang-select{
+  background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text);
+  border-radius:12px; padding:.5rem .8rem; font-size:.85rem; font-weight:500;
+}
+.lang-select:focus{ outline:2px solid var(--primary); }
+
+/* ==========================================================================
+   VIEW SWITCHING ANIMATION STYLES
+   ========================================================================== */
+.views-wrapper{width:100%;}
+.view-panel{display:none;width:100%;animation:fadeIn .3s ease;}
+.view-panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+.hero{ padding:6rem 0 5rem; position:relative; }
+.hero-eyebrow{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.4rem .9rem;
+  background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:999px;
+  font-size:.8rem; font-weight:600; color:var(--primary); margin-bottom:1.5rem;
+}
+.hero h1{
+  font-size:clamp(2.4rem, 5vw, 3.6rem); font-weight:800; line-height:1.08; margin-bottom:1.2rem;
+}
+.hero h1 .accent{
+  background:linear-gradient(135deg, var(--primary), var(--primary-light));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero p.lead-custom{ font-size:1.15rem; color:var(--text-muted); max-width:520px; margin-bottom:2rem; }
+.hero-cta{
+  display:inline-flex; align-items:center; gap:.6rem; padding:.9rem 1.8rem;
+  background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color:#111827; font-weight:700; border-radius:999px; border:none; box-shadow:0 15px 35px -10px rgba(245,158,11,.55);
+  transition:transform .25s, box-shadow .25s;
+  text-decoration: none;
+}
+.hero-cta:hover{ transform:translateY(-3px); box-shadow:0 20px 45px -10px rgba(245,158,11,.65); color:#111827; }
+
+.hero-illustration{ position:relative; height:420px; }
+.float-card{
+  position:absolute; padding:1rem 1.2rem; display:flex; align-items:center; gap:.7rem;
+  animation:bob 6s ease-in-out infinite;
+}
+.float-card .fc-icon{
+  width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;
+}
+.float-card small{ display:block; color:var(--text-muted); font-size:.7rem; }
+.float-card strong{ font-size:.95rem; }
+@keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);} }
+
+.hero-core{
+  width:230px; height:230px; border-radius:50%; margin:0 auto;
+  background:radial-gradient(circle at 32% 28%, rgba(245,158,11,.55), rgba(99,102,241,.25) 60%, transparent 75%);
+  display:flex; align-items:center; justify-content:center; position:relative;
+}
+.hero-core::before{
+  content:''; position:absolute; inset:18px; border-radius:50%;
+  border:1px dashed var(--glass-border); animation:spin 30s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.hero-core i{ font-size:4rem; color:var(--primary); filter:drop-shadow(0 10px 25px rgba(245,158,11,.5)); }
+
+/* ==========================================================================
+   SECTION SHARED
+   ========================================================================== */
+.section{ padding:5.5rem 0; }
+#staffView{min-height:auto!important;padding-bottom:0!important;margin-bottom:0!important;}
+#staffView .section{padding:0.5rem 0 0!important;min-height:auto!important;}
+#dashboardList{margin-bottom:0!important;padding-bottom:0!important;}
+.empty-state-custom{padding:1.5rem 1rem!important;}
+.section-eyebrow{ color:var(--primary); font-weight:700; font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; }
+.section-title{ font-size:clamp(1.7rem,3vw,2.4rem); font-weight:700; margin:.5rem 0 1rem; }
+.section-sub{ color:var(--text-muted); max-width:600px; }
+
+.reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+.reveal.in{ opacity:1; transform:translateY(0); }
+
+/* ==========================================================================
+   SUGGESTION FORM
+   ========================================================================== */
+.form-card{ padding:2.4rem; }
+.chip-group{ display:flex; flex-wrap:wrap; gap:.6rem; }
+.cat-chip{
+  display:inline-flex; align-items:center; gap:.5rem; #staffView .section{
+    padding: 2rem 0 1rem;
+}  border-radius:999px; border:1px solid var(--glass-border); background:var(--glass-bg);
+  color:var(--text); font-size:.88rem; font-weight:500; transition:all .2s;
+}
+.cat-chip i{ font-size:1rem; }
+.cat-chip:hover{ transform:translateY(-2px); border-color:var(--primary); }
+.cat-chip.active{
+  background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:#111827; border-color:transparent;
+  box-shadow:0 10px 24px -8px rgba(245,158,11,.55);
+}
+.field-label-custom{
+  font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:.6rem; display:block;
+}
+.form-control-glass{
+  background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text);
+  border-radius:var(--radius-sm); padding:.9rem 1.1rem; font-family:var(--font-body); resize:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.form-control-glass:focus{ outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(245,158,11,.15); background:var(--glass-bg); color:var(--text); }
+.form-control-glass::placeholder{ color:var(--text-muted); opacity:.7; }
+.char-counter{ font-size:.78rem; color:var(--text-muted); text-align:right; margin-top:.4rem; }
+.char-counter.warn{ color:var(--primary); font-weight:700; }
+
+.dropzone{
+  border:1.5px dashed var(--glass-border); border-radius:var(--radius-sm); padding:1.6rem;
+  text-align:center; cursor:pointer; transition:all .2s; background:var(--glass-bg);
+}
+.dropzone.dragover{ border-color:var(--primary); background:rgba(245,158,11,.08); }
+.dropzone i{ font-size:1.6rem; color:var(--primary); }
+.preview-thumb{ position:relative; display:inline-block; }
+.preview-thumb img{ width:100px; height:100px; object-fit:cover; border-radius:var(--radius-sm); border:1px solid var(--glass-border); }
+.preview-thumb button{
+  position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%;
+  background:#111827; color:#fff; border:none; font-size:.7rem;
+}
+
+.btn-submit{
+  width:100%; padding:1rem; border:none; border-radius:999px; font-weight:700; font-size:1rem;
+  color:#111827; background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+  position:relative; overflow:hidden; box-shadow:0 15px 35px -10px rgba(245,158,11,.55);
+  transition:transform .2s, box-shadow .2s;
+}
+.btn-submit:disabled{ opacity:.55; cursor:not-allowed; }
+.btn-submit:not(:disabled):hover{ transform:translateY(-2px); box-shadow:0 20px 45px -8px rgba(245,158,11,.65); }
+.ripple{ position:absolute; border-radius:50%; background:rgba(255,255,255,.55); transform:scale(0); animation:rippleAnim .6s ease-out; pointer-events:none; }
+@keyframes rippleAnim{ to{ transform:scale(3); opacity:0; } }
+
+.spinner-ring{
+  width:20px; height:20px; border:2.5px solid rgba(17,24,39,.25); border-top-color:#111827; border-radius:50%;
+  display:inline-block; animation:spin .7s linear infinite; vertical-align:-4px; margin-right:.5rem;
+}
+.success-check{
+  width:64px; height:64px; border-radius:50%; background:rgba(34,197,94,.15); display:flex; align-items:center; justify-content:center;
+  margin:0 auto 1rem; animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+.success-check i{ font-size:1.8rem; color:#22C55E; }
+@keyframes popIn{ from{ transform:scale(0); opacity:0; } to{ transform:scale(1); opacity:1; } }
+.field-error{ color:#F87171; font-size:.8rem; margin-top:.4rem; display:none; }
+.field-error.show{ display:block; }
+
+/* ==========================================================================
+   WHY / HOW / STATS / RESOLVED / FAQ
+   ========================================================================== */
+.icon-tile{
+  width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.05)); color:var(--primary); font-size:1.35rem; margin-bottom:1rem;
+}
+.info-card{ padding:1.8rem; height:100%; transition:transform var(--transition), box-shadow var(--transition); }
+.info-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow); }
+
+.step-card{ padding:2rem 1.8rem; height:100%; position:relative; }
+.step-num{
+  font-family:var(--font-display); font-weight:800; font-size:2.4rem; color:var(--primary); opacity:.35; line-height:1;
+}
+
+.stat-card{ padding:2rem 1.2rem; text-align:center; }
+.stat-num{ font-family:var(--font-display); font-weight:800; font-size:2.3rem; color:var(--primary); }
+.stat-label{ color:var(--text-muted); font-size:.85rem; margin-top:.3rem; }
+
+.resolved-card{ padding:1.5rem; height:100%; }
+.resolved-badge{
+  display:inline-flex; align-items:center; gap:.4rem; padding:.3rem .7rem; border-radius:999px;
+  background:rgba(34,197,94,.15); color:#22C55E; font-size:.72rem; font-weight:700; margin-bottom:.8rem;
+}
+.resolved-cat{
+  display:inline-block; padding:.25rem .65rem; border-radius:999px; font-size:.7rem; font-weight:700; color:#fff; margin-bottom:.6rem;
+}
+
+.accordion-glass .accordion-item{ background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-sm) !important; margin-bottom:.8rem; overflow:hidden; }
+.accordion-glass .accordion-button{ background:transparent; color:var(--text); font-weight:600; box-shadow:none !important; }
+.accordion-glass .accordion-button:not(.collapsed){ color:var(--primary); background:rgba(245,158,11,.06); }
+.accordion-glass .accordion-button::after{ filter:var(--icon-filter, none); }
+[data-theme="dark"] .accordion-glass .accordion-button::after{ filter:invert(1); }
+.accordion-glass .accordion-body{ color:var(--text-muted); }
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+.site-footer{ padding:3.5rem 0 2rem; border-top:1px solid var(--divider); position: relative; z-index: 10; }
+.footer-social{
+  width:38px; height:38px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center;
+  background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text); transition:all .2s;
+}
+.footer-social:hover{ background:var(--primary); color:#111827; transform:translateY(-3px); }
+.footer-link{ color:var(--text-muted); text-decoration:none; font-size:.9rem; transition:color .2s; }
+.footer-link:hover{ color:var(--primary); }
+
+/* ==========================================================================
+   STAFF DASHBOARD
+   ========================================================================== */
+.dash-filter-chip{
+  border:1px solid var(--glass-border); background:var(--glass-bg); color:var(--text-muted);
+  border-radius:999px; padding:.45rem 1rem; font-size:.82rem; font-weight:600; transition:all .2s;
+}
+.dash-filter-chip.active{ background:var(--primary); border-color:var(--primary); color:#111827; }
+.sugg-row{ padding:1.1rem 1.3rem; margin-bottom:.8rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+.status-badge{ padding:.3rem .7rem; border-radius:999px; font-size:.72rem; font-weight:700; border:none; }
+.status-New{ background:rgba(245,158,11,.18); color:var(--primary); }
+.status-InReview{ background:rgba(99,102,241,.18); color:#818CF8; }
+.status-Resolved{ background:rgba(34,197,94,.18); color:#22C55E; }
+
+.empty-state-custom{ text-align:center; padding:4rem 1rem; color:var(--text-muted); }
+.empty-state-custom i{ font-size:2.6rem; color:var(--primary); opacity:.6; margin-bottom:1rem; display:block; }
+
+@media (max-width: 767px){
+  .hero{ padding:3.5rem 0 3rem; text-align:center; }
+  .hero p.lead-custom{ margin-left:auto; margin-right:auto; }
+  .hero-illustration{ height:280px; margin-top:2rem; }
+}
+
+/* Accessible focus ring everywhere */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{
+  outline:2px solid var(--primary); outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* Improved light theme visibility */
+body.light .hero,
+[data-theme="light"] .hero{
+    background: linear-gradient(180deg,#f8fafc 0%,#eef4ff 100%) !important;
+}
+body.light .hero h1,
+body.light .hero .display-4,
+body.light .hero p,
+body.light .hero .lead,
+[data-theme="light"] .hero h1,
+[data-theme="light"] .hero .display-4,
+[data-theme="light"] .hero p,
+[data-theme="light"] .hero .lead{
+    color:#0f172a !important;
+}
+body.light .hero .text-muted,
+[data-theme="light"] .hero .text-muted{
+    color:#475569 !important;
+}
+
+</style>
+</head>
+<body>
+
+<div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+
+<!-- ============================== NAVBAR ============================== -->
+<nav class="navbar-glass">
+  <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-2">
+      <div class="brand-mark"><i class="bi bi-shield-lock-fill text-white"></i></div>
+      <span class="brand-name">Campus<span>Voice</span></span>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
+      <!-- RED AND GOLD SWITCHER BAR -->
+      <div class="seg-toggle" id="modeToggle" data-mode="student">
+        <div class="seg-highlight"></div>
+        <button class="active" data-mode="student" onclick="setMode('student')">Student</button>
+        <button data-mode="staff" onclick="setMode('staff')">Staff</button>
+      </div>
+
+      <select class="lang-select" id="langSelect" onchange="setLang(this.value)" aria-label="Language">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="hi">हिंदी</option>
+      </select>
+
+      <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark or light mode">
+        <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================== VIEWS WRAPPER ============================== -->
+<main class="views-wrapper">
+
+  <!-- ============================== STUDENT VIEW ============================== -->
+  <div id="studentView" class="view-panel active">
+    
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-6 reveal in">
+            <div class="hero-eyebrow"><i class="bi bi-lock-fill"></i> 100% Anonymous, always</div>
+            <h1>Anonymous <span class="accent">Suggestion Box</span></h1>
+            <p class="lead-custom">Your voice helps improve our campus. Share honest feedback about academics, facilities, food, or anything else — no names, no logins, ever.</p>
+            <a href="#suggest" class="hero-cta"><i class="bi bi-pencil-fill"></i> Share a suggestion</a>
+          </div>
+          <div class="col-lg-6">
+            <div class="hero-illustration">
+              <div class="hero-core"><i class="bi bi-chat-heart-fill"></i></div>
+              <div class="float-card glass" style="top:8%; left:2%; animation-delay:0s;">
+                <div class="fc-icon" style="background:rgba(245,158,11,.18); color:var(--primary);"><i class="bi bi-mortarboard-fill"></i></div>
+                <div><strong>Academics</strong><small>No notes yet</small></div>
+              </div>
+              <div class="float-card glass" style="bottom:12%; left:0%; animation-delay:1.2s;">
+                <div class="fc-icon" style="background:rgba(34,197,94,.18); color:#22C55E;"><i class="bi bi-check-circle-fill"></i></div>
+                <div><strong>Resolved</strong><small>0 resolved</small></div>
+              </div>
+              <div class="float-card glass" style="top:38%; right:0%; animation-delay:2.4s;">
+                <div class="fc-icon" style="background:rgba(99,102,241,.18); color:#818CF8;"><i class="bi bi-shield-check"></i></div>
+                <div><strong>Private</strong><small>No identity stored</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUGGESTION FORM -->
+    <section class="section" id="suggest">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="glass form-card reveal">
+              <h3 class="mb-1">Share your suggestion</h3>
+              <p class="text-muted-custom mb-4">Takes less than a minute. Nothing here is linked to your identity.</p>
+
+              <div id="formStep">
+                <label class="field-label-custom">Category</label>
+                <div class="chip-group mb-4" id="chipGroup">
+                  <button type="button" class="cat-chip" data-cat="Academics"><i class="bi bi-mortarboard"></i> Academics</button>
+                  <button type="button" class="cat-chip" data-cat="Facilities"><i class="bi bi-building"></i> Facilities</button>
+                  <button type="button" class="cat-chip" data-cat="Food & Dining"><i class="bi bi-cup-hot"></i> Food & Dining</button>
+                  <button type="button" class="cat-chip" data-cat="Technology"><i class="bi bi-cpu"></i> Technology</button>
+                  <button type="button" class="cat-chip" data-cat="Administration"><i class="bi bi-folder2-open"></i> Administration</button>
+                  <button type="button" class="cat-chip" data-cat="Campus Life"><i class="bi bi-people"></i> Campus Life</button>
+                  <button type="button" class="cat-chip" data-cat="Other"><i class="bi bi-stars"></i> Other</button>
+                </div>
+                <div class="field-error" id="catError">Please choose a category.</div>
+
+                <label class="field-label-custom mt-4">Your suggestion</label>
+                <textarea class="form-control form-control-glass w-100" id="noteText" rows="4" maxlength="600"
+                  placeholder="e.g. The library on the 2nd floor closes too early during exam week..."
+                  oninput="onNoteInput(this)"></textarea>
+                <div class="char-counter" id="charCounter">0 / 600</div>
+                <div class="field-error" id="textError">Please write at least 5 characters.</div>
+
+                <label class="field-label-custom mt-4">Add a photo (optional)</label>
+                <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                  <input type="file" id="fileInput" accept="image/*" hidden onchange="handleFile(this.files[0])">
+                  <div id="dropzoneEmpty">
+                    <i class="bi bi-cloud-arrow-up-fill d-block mb-2"></i>
+                    <div class="fw-semibold">Drag & drop or click to upload</div>
+                    <small class="text-muted-custom">PNG or JPG, compressed automatically</small>
+                  </div>
+                  <div id="dropzonePreview" style="display:none;">
+                    <div class="preview-thumb">
+                      <img id="previewImg" src="" alt="Preview">
+                      <button type="button" onclick="event.stopPropagation(); removePhoto();"><i class="bi bi-x"></i></button>
+                    </div>
+                  </div>
+                </div>
+
+                <button class="btn-submit mt-4" id="submitBtn" onclick="submitSuggestion(event)">
+                  <span id="submitLabel"><i class="bi bi-send-fill me-2"></i>Submit anonymously</span>
+                </button>
+              </div>
+
+              <div id="successStep" style="display:none; text-align:center; padding:1.5rem 0;">
+                <div class="success-check"><i class="bi bi-check-lg"></i></div>
+                <h4 class="mb-1">Posted anonymously</h4>
+                <p class="text-muted-custom mb-4" id="successMsg">Your note has been added to the board.</p>
+                <button class="btn-submit" style="max-width:220px; margin:0 auto;" onclick="resetForm()">Share another</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY ANONYMOUS -->
+    <section class="section" style="background:var(--bg-alt);">
+      <div class="container">
+        <div class="text-center mb-5 reveal">
+          <div class="section-eyebrow">Trust & privacy</div>
+          <h2 class="section-title">Why anonymous?</h2>
+          <p class="section-sub mx-auto">Honest feedback needs a safe space. Here's how we protect that.</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4 reveal">
+            <div class="glass info-card">
+              <div class="icon-tile"><i class="bi bi-incognito"></i></div>
+              <h5>No identity, ever</h5>
+              <p class="text-muted-custom mb-0">We never ask for your name, email, or student ID — there's nothing to trace back to you.</p>
+            </div>
+          </div>
+          <div class="col-md-4 reveal">
+            <div class="glass info-card">
+              <div class="icon-tile"><i class="bi bi-chat-square-quote"></i></div>
+              <h5>Honesty without fear</h5>
+              <p class="text-muted-custom mb-0">Say what you really think about academics, facilities, or campus life without worrying about consequences.</p>
+            </div>
+          </div>
+          <div class="col-md-4 reveal">
+            <div class="glass info-card">
+              <div class="icon-tile"><i class="bi bi-shield-check"></i></div>
+              <h5>Safe for everyone</h5>
+              <p class="text-muted-custom mb-0">Staff only ever see the suggestion itself — never who sent it, or from which device.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section">
+      <div class="container">
+        <div class="text-center mb-5 reveal">
+          <div class="section-eyebrow">The process</div>
+          <h2 class="section-title">How it works</h2>
+          <p class="section-sub mx-auto">Three simple steps from your thought to real change on campus.</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4 reveal">
+            <div class="glass step-card">
+              <div class="step-num">01</div>
+              <h5 class="mt-2">Write it down</h5>
+              <p class="text-muted-custom mb-0">Pick a category and describe the issue or idea in your own words. Add a photo if it helps.</p>
+            </div>
+          </div>
+          <div class="col-md-4 reveal">
+            <div class="glass step-card">
+              <div class="step-num">02</div>
+              <h5 class="mt-2">Drop it in the box</h5>
+              <p class="text-muted-custom mb-0">Submit with one tap. It's posted instantly and anonymously — no account needed.</p>
+            </div>
+          </div>
+          <div class="col-md-4 reveal">
+            <div class="glass step-card">
+              <div class="step-num">03</div>
+              <h5 class="mt-2">Reviewed by staff</h5>
+              <p class="text-muted-custom mb-0">Staff triage, prioritize, and act on suggestions — and mark them resolved when addressed.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATISTICS -->
+    <section class="section" style="background:var(--bg-alt);">
+      <div class="container">
+        <div class="row g-4" id="statsRow">
+          <div class="col-6 col-md-3 reveal"><div class="glass stat-card"><div class="stat-num" data-target="0" id="statTotal">0</div><div class="stat-label">Suggestions posted</div></div></div>
+          <div class="col-6 col-md-3 reveal"><div class="glass stat-card"><div class="stat-num" data-target="0" id="statResolved">0</div><div class="stat-label">Marked resolved</div></div></div>
+          <div class="col-6 col-md-3 reveal"><div class="glass stat-card"><div class="stat-num" data-target="0" id="statCategories">0</div><div class="stat-label">Categories covered</div></div></div>
+          <div class="col-6 col-md-3 reveal"><div class="glass stat-card"><div class="stat-num" data-target="0" id="statWeek">0</div><div class="stat-label">Posted this week</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECENTLY RESOLVED -->
+    <section class="section">
+      <div class="container">
+        <div class="text-center mb-5 reveal">
+          <div class="section-eyebrow">Real impact</div>
+          <h2 class="section-title">Recently resolved</h2>
+          <p class="section-sub mx-auto">Proof that suggestions here actually lead to change.</p>
+        </div>
+        <div class="row g-4" id="resolvedRow"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" style="background:var(--bg-alt);">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="text-center mb-5 reveal">
+              <div class="section-eyebrow">Good to know</div>
+              <h2 class="section-title">Frequently asked questions</h2>
+            </div>
+            <div class="accordion accordion-glass reveal" id="faqAccordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">Is this really anonymous?</button></h2>
+                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion"><div class="accordion-body">Yes. We never collect your name, email, or device identifiers alongside your suggestion. There is no way to trace a note back to you.</div></div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">Who can see what I write?</button></h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Only staff reviewing the suggestion board can see the content of your note. Other students cannot see it.</div></div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">Can I attach a photo?</button></h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Yes — photos are optional and compressed automatically before upload. They help when reporting something like a broken facility.</div></div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">How long does a response take?</button></h2>
+                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">It varies by category and complexity, but staff review new suggestions regularly and update their status as they're addressed.</div></div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">Can I edit or delete my suggestion after posting?</button></h2>
+                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Because submissions are anonymous, there's no account to log back into, so suggestions can't be edited or withdrawn after posting. Take a moment to review your note before submitting.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============================== STAFF VIEW ============================== -->
+  <div id="staffView" class="view-panel">
+    <section class="section">
+      <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+          <div>
+            <div class="section-eyebrow">Staff dashboard</div>
+            <h2 class="section-title mb-0">Suggestion overview</h2>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="dash-filter-chip" onclick="seedDemoData()"><i class="bi bi-magic"></i> Load sample data</button>
+            <button class="dash-filter-chip" onclick="clearAllData()"><i class="bi bi-trash3"></i> Clear all</button>
+          </div>
+        <button class="dash-filter-chip" onclick="changeStaffPassword()"><i class="bi bi-key"></i> Change Password</button><button class="dash-filter-chip" onclick="logoutStaff()"><i class="bi bi-box-arrow-right"></i> Logout</button></div>
+
+        <div class="d-flex gap-2 flex-wrap mb-4" id="dashFilters">
+          <button class="dash-filter-chip active" data-status="All" onclick="setDashFilter('All')">All</button>
+          <button class="dash-filter-chip" data-status="New" onclick="setDashFilter('New')">New</button>
+          <button class="dash-filter-chip" data-status="In Review" onclick="setDashFilter('In Review')">In Review</button>
+          <button class="dash-filter-chip" data-status="Resolved" onclick="setDashFilter('Resolved')">Resolved</button>
+        </div>
+
+        <div id="dashboardList"></div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+/* Firebase shared backend. Paste your Firebase Web App config below. */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_FIREBASE_API_KEY",
+  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId: "PASTE_YOUR_APP_ID"
+};
+const firebaseReady = Object.values(firebaseConfig).every(v => v && !v.startsWith("PASTE_YOUR_"));
+let firestore = null;
+if(firebaseReady){
+  try{ firestore = getFirestore(initializeApp(firebaseConfig)); }catch(err){ console.error("Firebase initialization failed:", err); }
+}
+window.firebaseBackend = {
+  enabled: () => !!firestore,
+  async addSuggestion(entry){
+    if(!firestore) return null;
+    const copy = {...entry}; delete copy.id;
+    const ref = await addDoc(collection(firestore,'suggestions'), copy);
+    return {...entry,id:ref.id};
+  },
+  async getSuggestions(){
+    if(!firestore) return null;
+    const snap = await getDocs(query(collection(firestore,'suggestions'),orderBy('ts','desc')));
+    return snap.docs.map(d => ({id:d.id,...d.data()}));
+  },
+  async updateSuggestion(id, changes){
+    if(!firestore) return false;
+    await updateDoc(doc(firestore,'suggestions',id),changes); return true;
+  },
+  async deleteSuggestion(id){
+    if(!firestore) return false;
+    await deleteDoc(doc(firestore,'suggestions',id)); return true;
+  }
+};
+</script>
+
+<script>
+/* ==========================================================================
+   CONSTANTS & I18N
+   ========================================================================== */
+const CATEGORIES = {
+  'Academics':'#6366F1', 'Facilities':'#22C55E', 'Food & Dining':'#F97316',
+  'Technology':'#0EA5E9', 'Administration':'#A855F7', 'Campus Life':'#EC4899', 'Other':'#94A3B8',
+};
+const STATUSES = ['New','In Review','Resolved'];
+const MAX_LEN = 600;
+
+const I18N = {
+  en:{ heroTitle:'Anonymous Suggestion Box', heroSub:"Your voice helps improve our campus. Share honest feedback about academics, facilities, food, or anything else — no names, no logins, ever." },
+  es:{ heroTitle:'Buzón de Sugerencias Anónimo', heroSub:'Tu voz ayuda a mejorar nuestro campus. Comparte comentarios honestos sobre academia, instalaciones, comida o cualquier otra cosa — sin nombres, sin inicio de sesión.' },
+  hi:{ heroTitle:'गुमनाम सुझाव पेटी', heroSub:'आपकी आवाज़ हमारे कैंपस को बेहतर बनाने में मदद करती है। शिक्षा, सुविधाओं, भोजन या किसी भी विषय पर बेझिझक अपनी राय साझा करें — कोई नाम नहीं, कोई लॉगिन नहीं।' },
+};
+
+/* ==========================================================================
+   STATE
+   ========================================================================== */
+let state = {
+  mode:'student',
+  lang:'en',
+  selectedCategory:null,
+  photoDataUrl:null,
+  dashFilter:'All',
+};
+
+function loadSuggestions(){
+  try{ return JSON.parse(localStorage.getItem('csv-suggestions') || '[]'); }
+  catch(e){ return []; }
+}
+function saveSuggestions(list){
+  try{ localStorage.setItem('csv-suggestions', JSON.stringify(list)); }catch(e){}
+}
+async function syncSuggestionsFromBackend(){
+  if(!window.firebaseBackend?.enabled()) return;
+  try{
+    const remote = await window.firebaseBackend.getSuggestions();
+    if(remote){ saveSuggestions(remote); renderDashboard(); refreshStats(); renderResolved(); }
+  }catch(err){ console.error('Could not sync suggestions:',err); }
+}
+
+/* ==========================================================================
+   THEME + LANGUAGE + MODE TOGGLES WITH ANIMATION
+   ========================================================================== */
+function toggleTheme(){
+  const root = document.documentElement;
+  const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').className = next === 'dark' ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
+  try{ localStorage.setItem('csv-theme', next); }catch(e){}
+}
+function setLang(l){
+  state.lang = l;
+  const dict = I18N[l] || I18N.en;
+  document.querySelector('.hero h1').innerHTML = dict.heroTitle.replace(/(Suggestion Box|de Sugerencias Anónimo|सुझाव पेटी)$/i, m => `<span class="accent">${m}</span>`);
+  document.querySelector('.hero .lead-custom').textContent = dict.heroSub;
+}
+function ensurePass(){let p=localStorage.getItem('staff-pass')||'admin123';let x=prompt('Enter staff passkey');if(x===null){return false;} if(x!==p){alert('Incorrect passkey');return false;} return true;}
+function changeStaffPassword(){let c=prompt('Current password');let p=localStorage.getItem('staff-pass')||'admin123';if(c!==p){alert('Wrong password');return;}let n=prompt('New password');if(n){localStorage.setItem('staff-pass',n);alert('Password changed');}}
+function logoutStaff(){
+  state.mode='student';
+  document.getElementById('modeToggle').setAttribute('data-mode','student');
+  document.querySelectorAll('#modeToggle button').forEach(b=>b.classList.toggle('active',b.dataset.mode==='student'));
+  document.getElementById('staffView').classList.remove('active');
+  document.getElementById('studentView').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function setMode(m){
+  if(m==='staff' && state.mode!=='staff'){
+    if(!ensurePass()) return;
+    syncSuggestionsFromBackend();
+  }
+  if(state.mode===m) return;
+  state.mode=m;
+  document.getElementById('modeToggle').setAttribute('data-mode',m);
+  document.querySelectorAll('#modeToggle button').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));
+  const studentEl=document.getElementById('studentView');
+  const staffEl=document.getElementById('staffView');
+  if(m==='student'){staffEl.classList.remove('active');studentEl.classList.add('active');}
+  else{studentEl.classList.remove('active');staffEl.classList.add('active');renderDashboard();}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ==========================================================================
+   SUGGESTION FORM
+   ========================================================================== */
+document.getElementById('chipGroup').addEventListener('click', (e) => {
+  const chip = e.target.closest('.cat-chip');
+  if(!chip) return;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  state.selectedCategory = chip.dataset.cat;
+  document.getElementById('catError').classList.remove('show');
+});
+
+function onNoteInput(el){
+  const len = el.value.length;
+  const counter = document.getElementById('charCounter');
+  counter.textContent = `${len} / ${MAX_LEN}`;
+  counter.classList.toggle('warn', len > MAX_LEN - 40);
+  if(len >= 5) document.getElementById('textError').classList.remove('show');
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 260) + 'px';
+}
+
+const dropzone = document.getElementById('dropzone');
+['dragover','dragleave','drop'].forEach(evt => {
+  dropzone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    dropzone.classList.toggle('dragover', evt === 'dragover');
+    if(evt === 'drop' && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+});
+
+function handleFile(file){
+  if(!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 900;
+      let w = img.width, h = img.height;
+      if(w > h && w > maxDim){ h = Math.round(h*maxDim/w); w = maxDim; }
+      else if(h > maxDim){ w = Math.round(w*maxDim/h); h = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      state.photoDataUrl = dataUrl;
+      document.getElementById('previewImg').src = dataUrl;
+      document.getElementById('dropzoneEmpty').style.display = 'none';
+      document.getElementById('dropzonePreview').style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function removePhoto(){
+  state.photoDataUrl = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('dropzoneEmpty').style.display = 'block';
+  document.getElementById('dropzonePreview').style.display = 'none';
+}
+
+function createRipple(e, btn){
+  const rect = btn.getBoundingClientRect();
+  const ripple = document.createElement('span');
+  const size = Math.max(rect.width, rect.height);
+  ripple.className = 'ripple';
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+  btn.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 650);
+}
+
+async function submitSuggestion(e){
+  const btn = document.getElementById('submitBtn');
+  createRipple(e, btn);
+
+  const textEl = document.getElementById('noteText');
+  const text = textEl.value.trim();
+  let valid = true;
+  if(!state.selectedCategory){ document.getElementById('catError').classList.add('show'); valid = false; }
+  if(text.length < 5){ document.getElementById('textError').classList.add('show'); valid = false; }
+  if(!valid) return;
+
+  btn.disabled = true;
+  document.getElementById('submitLabel').innerHTML = `<span class="spinner-ring"></span> Posting…`;
+  await new Promise(r => setTimeout(r, 700));
+
+  const list = loadSuggestions();
+  const entry = {
+    id: 'sug_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    text, category: state.selectedCategory, status:'New', ts: Date.now(),
+    photo: state.photoDataUrl || null,
+  };
+  list.push(entry);
+  saveSuggestions(list);
+  if(window.firebaseBackend?.enabled()){
+    try{
+      const remoteEntry = await window.firebaseBackend.addSuggestion(entry);
+      if(remoteEntry){ list[list.length-1]=remoteEntry; saveSuggestions(list); }
+    }catch(err){ console.error('Firebase save failed; local copy kept:',err); }
+  }
+
+  document.getElementById('formStep').style.display = 'none';
+  document.getElementById('successStep').style.display = 'block';
+  document.getElementById('successMsg').textContent = `This is note #${list.length} on the board. No name, no login — just noted.`;
+  refreshStats();
+  renderResolved();
+}
+function resetForm(){
+  state.selectedCategory = null;
+  state.photoDataUrl = null;
+  document.getElementById('noteText').value = '';
+  document.getElementById('charCounter').textContent = `0 / ${MAX_LEN}`;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+  removePhoto();
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('submitLabel').innerHTML = `<i class="bi bi-send-fill me-2"></i>Submit anonymously`;
+  document.getElementById('formStep').style.display = 'block';
+  document.getElementById('successStep').style.display = 'none';
+}
+
+/* ==========================================================================
+   STATISTICS
+   ========================================================================== */
+function animateNum(el, target){
+  const start = performance.now(), duration = 700;
+  function step(now){
+    const p = Math.min((now-start)/duration, 1);
+    el.textContent = Math.round(target * (1 - Math.pow(1-p, 3)));
+    if(p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function refreshStats(){
+  const list = loadSuggestions();
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  const total = list.length;
+  const resolved = list.filter(s => s.status === 'Resolved').length;
+  const categories = new Set(list.map(s => s.category)).size;
+  const week = list.filter(s => s.ts >= weekAgo).length;
+  animateNum(document.getElementById('statTotal'), total);
+  animateNum(document.getElementById('statResolved'), resolved);
+  animateNum(document.getElementById('statCategories'), categories);
+  animateNum(document.getElementById('statWeek'), week);
+}
+
+/* ==========================================================================
+   RECENTLY RESOLVED
+   ========================================================================== */
+function timeAgo(ts){
+  const diff = Date.now() - ts, m = Math.floor(diff/60000);
+  if(m < 1) return 'just now';
+  if(m < 60) return m + 'm ago';
+  const h = Math.floor(m/60); if(h < 24) return h + 'h ago';
+  return Math.floor(h/24) + 'd ago';
+}
+function renderResolved(){
+  const list = loadSuggestions().filter(s => s.status === 'Resolved').sort((a,b) => b.ts - a.ts).slice(0,3);
+  const row = document.getElementById('resolvedRow');
+  if(list.length === 0){
+    row.innerHTML = `<div class="col-12"><div class="empty-state-custom glass"><i class="bi bi-emoji-smile"></i>No resolved suggestions yet — once staff mark one resolved, it will appear here.</div></div>`;
+    return;
+  }
+  row.innerHTML = list.map(s => `
+    <div class="col-md-4 reveal in">
+      <div class="glass resolved-card">
+        <span class="resolved-badge"><i class="bi bi-check-circle-fill"></i> Resolved</span><br>
+        <span class="resolved-cat" style="background:${CATEGORIES[s.category]||'#94A3B8'}">${s.category}</span>
+        <p class="mb-1 mt-2">${escapeHtml(s.text)}</p>
+        <small class="text-muted-custom">${timeAgo(s.ts)}</small>
+      </div>
+    </div>`).join('');
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* ==========================================================================
+   STAFF DASHBOARD
+   ========================================================================== */
+function setDashFilter(f){
+  state.dashFilter = f;
+  document.querySelectorAll('#dashFilters .dash-filter-chip').forEach(b => b.classList.toggle('active', b.dataset.status === f));
+  renderDashboard();
+}
+function cycleStatus(id){
+  const list = loadSuggestions();
+  const item = list.find(s => s.id === id);
+  if(!item) return;
+  item.status = STATUSES[(STATUSES.indexOf(item.status)+1) % STATUSES.length];
+  saveSuggestions(list);
+  renderDashboard();
+  refreshStats();
+  renderResolved();
+}
+function seedDemoData(){
+  const samples = [
+    ['Academics','The intro stats course moves too fast for anyone without a math background.'],
+    ['Facilities','Water fountains on the 3rd floor of the engineering building have been broken for weeks.'],
+    ['Food & Dining','Could the dining hall add a station without gluten for people with allergies?'],
+    ['Technology','Wifi drops constantly in the north dorm during peak hours.'],
+    ['Administration','Financial aid office wait times are over an hour during registration week.'],
+    ['Campus Life','More late-night study spaces would help during finals.'],
+  ];
+  const list = loadSuggestions();
+  const now = Date.now();
+  samples.forEach((s,i) => {
+    list.push({ id:'seed_'+i+'_'+now, category:s[0], text:s[1], status:STATUSES[i%3], ts: now - i*86400000, photo:null });
+  });
+  saveSuggestions(list);
+  if(window.firebaseBackend?.enabled()){ const changed=list.find(x=>x.id===id); if(changed) window.firebaseBackend.updateSuggestion(id,{status:changed.status}).catch(console.error); }
+  renderDashboard(); refreshStats(); renderResolved();
+}
+function clearAllData(){
+  if(!confirm('Clear every suggestion from this board? This cannot be undone.')) return;
+  const existing=loadSuggestions();
+  saveSuggestions([]);
+  if(window.firebaseBackend?.enabled()) existing.forEach(x=>window.firebaseBackend.deleteSuggestion(x.id).catch(console.error));
+  renderDashboard(); refreshStats(); renderResolved();
+}
+function renderDashboard(){
+  const list = loadSuggestions()
+    .filter(s => state.dashFilter === 'All' || s.status === state.dashFilter)
+    .sort((a,b) => b.ts - a.ts);
+  const el = document.getElementById('dashboardList');
+  if(list.length === 0){
+    el.innerHTML = `<div class="empty-state-custom glass"><i class="bi bi-inbox"></i>No suggestions match this filter yet.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(s => `
+    <div class="glass sugg-row">
+      <span class="resolved-cat" style="background:${CATEGORIES[s.category]||'#94A3B8'}">${s.category}</span>
+      <div style="flex:1; min-width:200px;">${escapeHtml(s.text)}</div>
+      ${s.photo ? `<img src="${s.photo}" style="width:52px;height:52px;object-fit:cover;border-radius:10px;">` : ''}
+      <small class="text-muted-custom">${timeAgo(s.ts)}</small>
+      <button class="status-badge status-${s.status.replace(' ','')}" onclick="cycleStatus('${s.id}')">${s.status} ⟳</button>
+    </div>`).join('');
+}
+
+/* ==========================================================================
+   SCROLL REVEAL
+   ========================================================================== */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('in'); });
+}, { threshold:.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ==========================================================================
+   INIT
+   ========================================================================== */
+document.getElementById('year').textContent = new Date().getFullYear();
+try{
+  const savedTheme = localStorage.getItem('csv-theme');
+  if(savedTheme){
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
+  }
+}catch(e){}
+refreshStats();
+renderResolved();
+syncSuggestionsFromBackend();
+</script>
+
+<script>
+let lastScrollTop=0;
+const navbar=document.querySelector('.navbar-glass');
+window.addEventListener('scroll',()=>{
+ const y=window.pageYOffset||document.documentElement.scrollTop;
+ if(navbar){
+   navbar.style.transform=(y>lastScrollTop&&y>80)?'translateY(-100%)':'translateY(0)';
+ }
+ lastScrollTop=y<=0?0:y;
+});
+</script>
+
+</body>
+</html>
